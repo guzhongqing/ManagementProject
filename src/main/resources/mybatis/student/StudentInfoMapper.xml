@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizhi.student.dao.StudentInfoDao">
+
+
+    <resultMap id="BaseResultMap" type="com.yizhi.student.domain.StudentInfoDO">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="VARCHAR"/>
+        <result property="examId" column="exam_id" jdbcType="VARCHAR"/>
+        <result property="classId" column="class_id" jdbcType="INTEGER"/>
+        <result property="studentName" column="student_name" jdbcType="VARCHAR"/>
+        <result property="certify" column="certify" jdbcType="VARCHAR"/>
+        <result property="mailAddress" column="mail_address" jdbcType="VARCHAR"/>
+        <result property="foreignLanaguage" column="foreign_lanaguage" jdbcType="VARCHAR"/>
+        <result property="studentSex" column="student_sex" jdbcType="VARCHAR"/>
+        <result property="nation" column="nation" jdbcType="VARCHAR"/>
+        <result property="political" column="political" jdbcType="VARCHAR"/>
+        <result property="cardId" column="card_id" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="subjectType" column="subject_type" jdbcType="VARCHAR"/>
+        <result property="tocollege" column="tocollege" jdbcType="INTEGER"/>
+        <result property="tocampus" column="tocampus" jdbcType="INTEGER"/>
+        <result property="tomajor" column="tomajor" jdbcType="INTEGER"/>
+        <result property="birthplace" column="birthplace" jdbcType="VARCHAR"/>
+        <result property="grade" column="grade" jdbcType="VARCHAR"/>
+        <result property="isstate" column="isstate" jdbcType="INTEGER"/>
+        <result property="birthday" column="birthday" jdbcType="VARCHAR"/>
+        <result property="note" column="note" jdbcType="VARCHAR"/>
+        <result property="addTime" column="add_time" jdbcType="TIMESTAMP"/>
+        <result property="addUserid" column="add_userid" jdbcType="INTEGER"/>
+        <result property="editTime" column="edit_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,student_id,exam_id,
+        class_id,student_name,certify,
+        mail_address,foreign_lanaguage,student_sex,
+        nation,political,card_id,
+        telephone,subject_type,tocollege,
+        tocampus,tomajor,birthplace,
+        grade,isstate,birthday,
+        note,add_time,add_userid,
+        edit_time,edit_userid
+    </sql>
+
+
+    <sql id="StudentInfoColumns">
+        *
+        ,
+        sc.college_name as collegeName,
+        sm.major_name as majorName,
+        scl.class_name as className
+    </sql>
+
+
+    <sql id="StudentInfoJoins">
+        join sys_college sc on sc.id=ssi.tocollege
+        join sys_major sm on sm.id=ssi.tomajor
+        join sys_class  scl on scl.id=ssi.class_id
+    </sql>
+
+    <insert id="save">
+        insert into s_student_info
+        values (null,
+                #{studentId},
+                #{examId},
+                #{classId},
+                #{studentName},
+                #{certify},
+                #{mailAddress},
+                #{foreignLanaguage},
+                #{studentSex},
+                #{nation},
+                #{political},
+                #{cardId},
+                #{telephone},
+                #{subjectType},
+                #{tocollege},
+                null,
+                #{tomajor},
+                #{birthplace},
+                #{grade},
+                #{isstate},
+                #{birthday},
+                #{note},
+                #{addTime},
+                #{addUserid},
+                #{editTime},
+                #{editUserid})
+    </insert>
+
+
+    <update id="update">
+        update s_student_info
+        <set>
+            <if test="studentId != null">`student_id` = #{studentId},</if>
+            <if test="examId != null">`exam_id` = #{examId},</if>
+            <if test="classId != null">`class_id` = #{classId},</if>
+            <if test="studentName != null">`student_name` = #{studentName},</if>
+            <if test="mailAddress != null">`mail_address` = #{mailAddress},</if>
+            <if test="foreignLanaguage != null">`foreign_lanaguage` = #{foreignLanaguage},</if>
+            <if test="studentSex != null">`student_sex` = #{studentSex},</if>
+            <if test="political != null">`political` = #{political},</if>
+            <if test="cardId != null">`card_id` = #{cardId},</if>
+            <if test="telephone != null">`telephone` = #{telephone},</if>
+            <if test="subjectType != null">`subject_type` = #{subjectType},</if>
+            <if test="tocollege != null">`tocollege` = #{tocollege},</if>
+            <if test="tomajor != null">`tomajor` = #{tomajor},</if>
+            <if test="birthplace != null">`birthplace` = #{birthplace},</if>
+            <if test="grade != null">`grade` = #{grade},</if>
+            <if test="isstate != null">`isstate` = #{isstate},</if>
+            <if test="birthday != null">`birthday` = #{birthday},</if>
+            <if test="note != null">`note` = #{note}</if>
+        </set>
+        where id = #{id}
+
+    </update>
+
+    <select id="list" resultType="com.yizhi.student.domain.StudentInfoDO">
+        select
+        <include refid="StudentInfoColumns"/>
+        from s_student_info ssi
+        <include refid="StudentInfoJoins"/>
+        <where>
+            <if test="name != null and name != ''">and ssi.student_name LIKE CONCAT('%',#{name},'%')</if>
+            <if test="tocollegeId != null and tocollegeId != ''">and ssi.tocollege = #{tocollegeId}</if>
+            <if test="tomajorId != null and tomajorId != ''">and ssi.tomajor = #{tomajorId}</if>
+            <if test="classId != null and classId != ''">and ssi.class_id = #{classId}</if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by ssi.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+
+
+    </select>
+
+
+    <select id="count" resultType="java.lang.Integer">
+        select count(*) from s_student_info ssi
+        <include refid="StudentInfoJoins"/>
+        <where>
+            <if test="name != null and name != ''">and ssi.student_name LIKE CONCAT('%',#{name},'%')</if>
+            <if test="tocollegeId != null and tocollegeId != ''">and ssi.tocollege = #{tocollegeId}</if>
+            <if test="tomajorId != null and tomajorId != ''">and ssi.tomajor = #{tomajorId}</if>
+            <if test="classId != null and classId != ''">and ssi.class_id = #{classId}</if>
+        </where>
+    </select>
+
+
+    <delete id="batchRemove">
+        delete from s_student_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>
